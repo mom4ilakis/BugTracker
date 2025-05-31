@@ -22,7 +22,7 @@ def setup_engine():
     ENGINE = create_engine(connection_string, echo="DEBUG" in os.environ)
 
 def create_tables():
-    from models import User
+    from models import User, Bug
     SQLModel.metadata.create_all(ENGINE)
 
 
