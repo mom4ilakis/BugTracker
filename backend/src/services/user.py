@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
@@ -11,6 +13,10 @@ from models import User
 class UserService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
+
+    def find_by_uuid(self, uuid: UUID):
+        query = select(User).where(User.uuid == uuid)
+        return self.session.exec(query).one()
 
     def find_by_email(self, email):
         query = select(User).where(User.email == email)
