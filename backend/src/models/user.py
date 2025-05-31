@@ -1,11 +1,11 @@
 import uuid as _uuid
-from datetime import datetime
 
-from sqlalchemy import Column, DateTime, func
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field
+
+from .timestamp_mixin import TimeStampMixin
 
 
-class User(SQLModel, table=True):
+class User(TimeStampMixin, table=True):
     id: int | None = Field(default=None, primary_key=True)
     uuid: _uuid.UUID = Field(default_factory=_uuid.uuid4, unique=True, index=True)
     username: str = Field(unique=True)
@@ -14,5 +14,3 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
     is_verified: bool = Field(default=False)
-    created_at: datetime = Field(sa_column=Column(DateTime(), server_default=func.now(), nullable=False))
-    updated_at: datetime = Field(sa_column=Column(DateTime(), server_default=func.now(), onupdate=func.now(), nullable=False))
