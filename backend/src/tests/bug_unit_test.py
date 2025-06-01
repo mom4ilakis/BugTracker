@@ -5,10 +5,12 @@ from sqlmodel import Session, SQLModel, create_engine
 from constants import Priority, Status, FilterParams
 from services import BugService, UserService
 
+
 # Fixtures
 @pytest.fixture(name="engine")
 def engine_fixture():
     return create_engine("sqlite:///:memory:")
+
 
 @pytest.fixture(name="session")
 def session_fixture(engine):
@@ -17,13 +19,16 @@ def session_fixture(engine):
         yield session
     SQLModel.metadata.drop_all(engine)
 
+
 @pytest.fixture
 def user_service(session):
     return UserService(session)
 
+
 @pytest.fixture
 def bug_service(user_service, session):
     return BugService(user_service, session)
+
 
 # Test data
 TEST_USER = {
@@ -37,6 +42,7 @@ TEST_ASSIGNEE = {
     "password": "password456",
     "email": "assignee@example.com"
 }
+
 
 class TestBugService:
     def test_create_new_bug_with_assignee(self, bug_service, user_service):
@@ -70,12 +76,13 @@ class TestBugService:
 
     def test_update_bug_properties(self, bug_service, user_service):
         reporter = user_service.create_new_user(**TEST_USER)
+        assignee = user_service.create_new_user(**TEST_ASSIGNEE)
         bug = bug_service.create_new_bug("Initial Title", reporter.uuid)
 
-        updated_bug = bug_service.update_bug(bug.uuid, {"title": "Updated Title", "status": Status.DONE})
+        updated_bug = bug_service.update_bug(bug.uuid, {"title": "Updated Title", "status": Status.DONE, "assigned_to": assignee.uuid})
 
         assert updated_bug.title == "Updated Title"
-        assert updated_bug.status ==  Status.DONE
+        assert updated_bug.status == Status.DONE
 
     def test_find_by_uuid(self, bug_service, user_service):
         reporter = user_service.create_new_user(**TEST_USER)
@@ -103,6 +110,10 @@ class TestBugService:
         with pytest.raises(Exception):
             bug_service.find_by_uuid(bug.uuid)
 
+    def test_delete_wont_raise(self, bug_service):
+        bug_service.delete(uuid4())
+
+
 class TestErrorHandling:
     def test_invalid_reporter_uuid(self, bug_service):
         with pytest.raises(Exception):
@@ -112,3 +123,9 @@ class TestErrorHandling:
         reporter = user_service.create_new_user(**TEST_USER)
         with pytest.raises(Exception):
             bug_service.create_new_bug("Test", reporter.uuid, assignee_uuid=uuid4())
+
+    def test_invalid_assignee_update(self, bug_service, user_service):
+        reporter = user_service.create_new_user(**TEST_USER)
+        bug = bug_service.create_new_bug("Test", reporter.uuid)
+        with pytest.raises(Exception):
+            bug_service.update_bug(bug.uuid, {"assigned_to": uuid4()})

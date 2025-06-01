@@ -3,3 +3,6 @@ class UserExistsException(Exception):
 
 class CredentialsException(Exception):
     """Invalid Credentials!"""
+
+class UserNotFoundException(Exception):
+    """User not found!"""

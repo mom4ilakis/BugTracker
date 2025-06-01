@@ -2,9 +2,10 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
+from sqlalchemy.exc import NoResultFound
 from sqlmodel import Session, select
 
-from constants import FilterParams
+from constants import FilterParams, UserNotFoundException
 from db import get_session
 from models import Bug
 from .user import UserServiceDep
@@ -19,12 +20,18 @@ class BugService:
         if optional_props is None:
             optional_props = {}
 
-        reporter = self.user_service.find_by_uuid(reporter_uuid)
+        try:
+            reporter = self.user_service.find_by_uuid(reporter_uuid)
+        except NoResultFound:
+            raise UserNotFoundException
 
         if assignee_uuid:
-            assignee = self.user_service.find_by_uuid(assignee_uuid)
-            if assignee:
-                optional_props["assigned_to"] = assignee.id
+            try:
+                assignee = self.user_service.find_by_uuid(assignee_uuid)
+                if assignee:
+                    optional_props["assigned_to"] = assignee.id
+            except NoResultFound:
+                raise UserNotFoundException
 
         bug = Bug(title=title, reported_by=reporter.id, **optional_props)
         self.session.add(bug)
@@ -34,11 +41,22 @@ class BugService:
 
     def update_bug(self, uuid: UUID, updates):
         bug_to_update = self.find_by_uuid(uuid)
+
         for key, value in updates.items():
+            if key == "assigned_to":
+                try:
+                    assignee = self.user_service.find_by_uuid(value)
+                    if assignee:
+                        value = assignee.id
+                except NoResultFound:
+                    raise UserNotFoundException
+
             setattr(bug_to_update, key, value)
+
         self.session.add(bug_to_update)
         self.session.commit()
         self.session.refresh(bug_to_update)
+
         return bug_to_update
 
     def find_by_uuid(self, uuid: UUID):

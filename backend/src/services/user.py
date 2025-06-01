@@ -15,6 +15,10 @@ class UserService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
+    def find_all(self):
+        query = select(User)
+        return self.session.exec(query).all()
+
     def find_by_uuid(self, uuid: UUID):
         query = select(User).where(User.uuid == uuid)
         return self.session.exec(query).one()

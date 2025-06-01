@@ -5,3 +5,9 @@ class User(BaseModel):
     uuid: UUID
     username: str
     is_superuser: bool
+
+
+class CurrentUser(BaseModel):
+    uuid: UUID
+    id: int
+    scopes: list[str]

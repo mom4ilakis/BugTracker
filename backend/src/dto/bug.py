@@ -5,29 +5,27 @@ from pydantic import BaseModel
 from constants import Status, Priority, Severity
 from .user import User
 
-class NewBug(BaseModel):
-    title: str
-    description: str | None
-    status: Status | None
-    priority: Priority | None
-    severity: Severity | None
-    steps: str | None
-    expected: str | None
-    actual: str | None
-    reported_by: User | None
-    assigned_to: User | None
 
-class Bug(NewBug):
+class BaseBug(BaseModel):
+    title: str
+    description: str | None = None
+    status: Status | None = None
+    priority: Priority | None = None
+    severity: Severity | None = None
+    steps: str | None = None
+    expected: str | None = None
+    actual: str | None = None
+
+
+class NewBug(BaseBug):
+    assigned_to: UUID | None = None
+
+
+class UpdatedBug(BaseBug):
+    title: str | None = None
+
+
+class Bug(BaseBug):
     uuid: UUID
-
-
-class BugUpdate(BaseModel):
-    title: str
-    description: str | None
-    status: Status | None
-    priority: Priority | None
-    severity: Severity | None
-    steps: str | None
-    expected: str | None
-    actual: str | None
-    assigned_to: User | None
+    reporter: User
+    assignee: User | None = None

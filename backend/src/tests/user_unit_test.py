@@ -1,12 +1,12 @@
+from unittest.mock import patch
+
 import pytest
 from uuid import UUID, uuid4
-from typing import Annotated
 from sqlmodel import Session, SQLModel, create_engine
-from services import UserService, UserServiceDep
+from services import UserService
 from constants import UserExistsException
 from security import verify_password
 
-# Test database setup
 @pytest.fixture(name="engine")
 def engine_fixture():
     return create_engine("sqlite:///:memory:")
@@ -22,18 +22,22 @@ def session_fixture(engine):
 def user_service(session):
     return UserService(session)
 
-# Test data
 TEST_USER = {
     "username": "testuser",
     "password": "securepassword",
     "email": "test@example.com"
 }
 
+TEST_USER_2 = {
+    "username": "testuser2",
+    "password": "securepassword",
+    "email": "test2@example.com"
+}
+
 class TestUserService:
     def test_create_new_user_success(self, user_service):
         user = user_service.create_new_user(**TEST_USER)
 
-        assert user.uuid is not None
         assert isinstance(user.uuid, UUID)
         assert user.username == TEST_USER["username"]
         assert verify_password(TEST_USER["password"], user.password)
@@ -46,6 +50,14 @@ class TestUserService:
         user_service.create_new_user(**TEST_USER)
         with pytest.raises(UserExistsException):
             user_service.create_new_user(**TEST_USER)
+
+    def test_create_user_no_changes_when_exception_raised(self, user_service):
+        with patch('db.get_session') as mock_get_session:
+            mock_get_session.side_effect = Exception("Mocked exception")
+            with pytest.raises(Exception):
+                user_service.create_new_user(**TEST_USER)
+                all_users = user_service.find_all()
+                assert len(all_users) == 0
 
     def test_find_by_uuid_success(self, user_service):
         created_user = user_service.create_new_user(**TEST_USER)
@@ -66,3 +78,10 @@ class TestUserService:
     def test_find_by_email_not_found(self, user_service):
         with pytest.raises(Exception):
             user_service.find_by_email("nonexistent@example.com")
+
+
+    def test_find_all_success(self, user_service):
+        user_service.create_new_user(**TEST_USER)
+        user_service.create_new_user(**TEST_USER_2)
+        all_users = user_service.find_all()
+        assert len(all_users) == 2
