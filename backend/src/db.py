@@ -20,6 +20,7 @@ def setup_engine():
     connection_string = f"mysql+pymysql://{user}:{password}@localhost:3306/{db}"
 
     ENGINE = create_engine(connection_string, echo="DEBUG" in os.environ)
+    return ENGINE
 
 def create_tables():
     from models import User, Bug
