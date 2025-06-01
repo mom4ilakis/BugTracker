@@ -1,3 +1,3 @@
-from .user import UserService
-from .authentication import AuthenticationService
-from .bug import BugService
+from .user import UserService, UserServiceDep
+from .authentication import AuthenticationService, AuthServiceDep
+from .bug import BugService, BugServiceDep

@@ -1,14 +1,17 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Query
 from uuid import UUID
 
-from dependencies import BugServiceDep
+from constants.filters import FilterParams
+from services import BugServiceDep
 from dto import NewBug, Bug, BugUpdate
 
 router = APIRouter(prefix="/bugs", tags=["bugs"])
 
 
 @router.get("/")
-async def get_bugs(bug_service: BugServiceDep) -> list[Bug]:
+async def get_bugs(bug_service: BugServiceDep, filter_query: Annotated[FilterParams, Query()]) -> list[Bug]:
     return bug_service.find_all()
 
 @router.post("/")

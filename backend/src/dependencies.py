@@ -10,6 +10,5 @@ from services import UserService, AuthenticationService, BugService
 SessionDep = Annotated[Session, Depends(get_session)]
 PasswordRequestFormDep = Annotated[OAuth2PasswordRequestForm, Depends()]
 
-UserServiceDep = Annotated[UserService, Depends()]
-AuthServiceDep = Annotated[AuthenticationService, Depends()]
-BugServiceDep = Annotated[BugService, Depends()]
+
+

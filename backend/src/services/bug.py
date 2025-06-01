@@ -1,11 +1,13 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
 from sqlmodel import Session, select
 
+from constants import FilterParams
 from db import get_session
 from models import Bug
-from dependencies import UserServiceDep
+from .user import UserServiceDep
 
 
 class BugService:
@@ -43,8 +45,12 @@ class BugService:
         query = select(Bug).where(Bug.uuid == uuid)
         return self.session.exec(query).one()
 
-    def find_all(self):
+    def find_all(self, filters: FilterParams = None):
         query = select(Bug)
+        if filters is not None:
+            for field, value in filters.model_dump(exclude_defaults=True).items():
+                query = query.where(getattr(Bug, field) == value)
+
         return self.session.exec(query).all()
 
     def delete(self, uuid: UUID):
@@ -54,3 +60,6 @@ class BugService:
             self.session.commit()
         except Exception as e:
             pass
+
+
+BugServiceDep = Annotated[BugService, Depends()]

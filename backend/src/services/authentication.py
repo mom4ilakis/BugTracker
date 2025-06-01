@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel import select, Session
 
@@ -13,7 +15,6 @@ class AuthenticationService:
         self.session = session
 
     def authenticate_user(self, username: str, password: str):
-
         query = select(User).where(User.username == username)
         user = self.session.exec(query).one()
 
@@ -21,3 +22,6 @@ class AuthenticationService:
             raise CredentialsException("Invalid credentials")
 
         return create_token_pair(user)
+
+
+AuthServiceDep = Annotated[AuthenticationService, Depends()]

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 
 from constants import UserExistsException, CredentialsException
-from dependencies import UserServiceDep, AuthServiceDep, PasswordRequestFormDep
+from services import UserServiceDep, AuthServiceDep
+from dependencies import PasswordRequestFormDep
 from dto import RegisterInfo, User, Token
 
 router = APIRouter()
