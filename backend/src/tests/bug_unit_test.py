@@ -101,6 +101,16 @@ class TestBugService:
         assert len(open_bugs) == 1
         assert open_bugs[0].uuid == bug1.uuid
 
+    def test_find_all_for_user(self, bug_service, user_service):
+        reporter = user_service.create_new_user(**TEST_USER)
+        bug1 = bug_service.create_new_bug("Bug 1", reporter.uuid, reporter.uuid)
+        bug2 = bug_service.create_new_bug("Bug 2", reporter.uuid, reporter.uuid)
+
+        user_bugs = bug_service.find_all(filters=FilterParams(assigned_to=reporter.uuid))
+        assert len(user_bugs) == 2
+        assert user_bugs[0].uuid == bug1.uuid
+        assert user_bugs[1].uuid == bug2.uuid
+
     def test_delete_bug(self, bug_service, user_service):
         reporter = user_service.create_new_user(**TEST_USER)
         bug = bug_service.create_new_bug("To Delete", reporter.uuid)
