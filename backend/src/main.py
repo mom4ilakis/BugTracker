@@ -1,13 +1,22 @@
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
+from constants import origins
 from routers import bugs_router, login_router, users_router
 
 from db import setup_engine
 
 setup_engine()
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(login_router)
 app.include_router(users_router)
