@@ -1,0 +1,52 @@
+networks:
+  bugnet:
+    driver: bridge
+
+services:
+  db:
+    image: mysql:9.3
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: bugtracker
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - bugnet
+
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_HOST: "db:3306"
+      DB_USER: bugger
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: bugtracker
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - bugnet
+    restart: unless-stopped
+
+  fe:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      BACKEND_URL: http://server:800
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - bugnet
+    restart: unless-stopped
+
+volumes:
+  db_data:

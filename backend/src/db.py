@@ -13,11 +13,12 @@ def setup_engine():
     user = os.environ.get("DB_USER")
     password = os.environ.get("DB_PASSWORD")
     db = os.environ.get("DB_NAME")
+    host = os.environ.get("MYSQL_HOST")
 
     if not user or not password or not db:
         raise RuntimeError("DB credentials were not provided!")
 
-    connection_string = f"mysql+pymysql://{user}:{password}@localhost:3306/{db}"
+    connection_string = f"mysql+pymysql://{user}:{password}@{host}/{db}"
 
     ENGINE = create_engine(connection_string, echo="DEBUG" in os.environ)
     return ENGINE
