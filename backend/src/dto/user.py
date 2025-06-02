@@ -9,5 +9,4 @@ class User(BaseModel):
 
 class CurrentUser(BaseModel):
     uuid: UUID
-    id: int
     scopes: list[str]

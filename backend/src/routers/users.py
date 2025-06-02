@@ -1,24 +1,17 @@
-from uuid import UUID
-from fastapi import APIRouter
+from typing import Annotated
+from fastapi import APIRouter, Security
+
+from dependencies import get_current_user
+from dto import CurrentUser, User
+from services import UserServiceDep
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/")
-async def get_users():
-    return {"message": "Get ALL users successful"}
+async def get_users(user_service: UserServiceDep) -> list[User]:
+    return user_service.find_all()
 
-
-@router.post("/")
-async def create_user():
-    return {"message": "Create user successful"}
-
-
-@router.patch("/{user_uuid}")
-async def update_user(user_uuid: UUID):
-    return {"message": f"Update user {user_uuid} successful"}
-
-
-@router.delete("/{user_uuid}")
-async def delete_user(user_uuid: UUID):
-    return {"message": f"Delete user {user_uuid} successful"}
+@router.get("/me")
+async def get_me( current_user: Annotated[CurrentUser, Security(get_current_user, scopes=["me"])]) -> CurrentUser:
+    return current_user.model_dump()
