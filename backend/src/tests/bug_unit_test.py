@@ -2,7 +2,7 @@ import pytest
 from uuid import UUID, uuid4
 from sqlmodel import Session, SQLModel, create_engine
 
-from constants import Priority, Status, FilterParams
+from constants import Priority, Status, FilterParams, Severity
 from services import BugService, UserService
 
 
@@ -101,7 +101,7 @@ class TestBugService:
         assert len(open_bugs) == 1
         assert open_bugs[0].uuid == bug1.uuid
 
-    def test_find_all_for_user(self, bug_service, user_service):
+    def test_find_all_for_assigned_user(self, bug_service, user_service):
         reporter = user_service.create_new_user(**TEST_USER)
         bug1 = bug_service.create_new_bug("Bug 1", reporter.uuid, reporter.uuid)
         bug2 = bug_service.create_new_bug("Bug 2", reporter.uuid, reporter.uuid)
@@ -110,6 +110,25 @@ class TestBugService:
         assert len(user_bugs) == 2
         assert user_bugs[0].uuid == bug1.uuid
         assert user_bugs[1].uuid == bug2.uuid
+
+    def test_find_all_for_non_existing_user(self, bug_service, user_service):
+        reporter = user_service.create_new_user(**TEST_USER)
+        bug_service.create_new_bug("Bug 1", reporter.uuid, reporter.uuid)
+        bug_service.create_new_bug("Bug 2", reporter.uuid, reporter.uuid)
+
+        user_bugs = bug_service.find_all(filters=FilterParams(assigned_to=uuid4(), reported_by=uuid4()))
+        assert len(user_bugs) == 0
+
+    def test_find_all_for_reported_user(self, bug_service, user_service):
+        reporter = user_service.create_new_user(**TEST_USER)
+        bug1 = bug_service.create_new_bug("Bug 1", reporter.uuid, reporter.uuid)
+        bug2 = bug_service.create_new_bug("Bug 2", reporter.uuid, reporter.uuid)
+
+        user_bugs = bug_service.find_all(filters=FilterParams(reported_by=reporter.uuid))
+        assert len(user_bugs) == 2
+        assert user_bugs[0].uuid == bug1.uuid
+        assert user_bugs[1].uuid == bug2.uuid
+
 
     def test_delete_bug(self, bug_service, user_service):
         reporter = user_service.create_new_user(**TEST_USER)
@@ -122,6 +141,11 @@ class TestBugService:
 
     def test_delete_wont_raise(self, bug_service):
         bug_service.delete(uuid4())
+
+    def test_metadata(self, bug_service):
+        metadata = bug_service.get_metadata()
+        expected_metadata = {"priority": [*Priority], "status": [*Status], "severity": [*Severity]}
+        assert metadata == expected_metadata
 
 
 class TestErrorHandling:

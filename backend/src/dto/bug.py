@@ -21,11 +21,18 @@ class NewBug(BaseBug):
     assigned_to: UUID | None = None
 
 
-class UpdatedBug(BaseBug):
+class UpdatedBug(BaseBug,):
     title: str | None = None
+    assigned_to: UUID | None = None
 
 
 class Bug(BaseBug):
     uuid: UUID
     reporter: User
     assignee: User | None = None
+
+
+class Metadata(BaseModel):
+    severity: list[str]
+    priority: list[str]
+    status: list[str]

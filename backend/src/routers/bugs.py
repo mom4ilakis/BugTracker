@@ -9,7 +9,7 @@ from constants import UserNotFoundException
 from constants.filters import FilterParams
 from dependencies import get_current_user
 from services import BugServiceDep
-from dto import NewBug, Bug, CurrentUser, UpdatedBug
+from dto import NewBug, Bug, CurrentUser, UpdatedBug, Metadata
 
 router = APIRouter(prefix="/bugs", tags=["bugs"])
 
@@ -44,6 +44,12 @@ async def update_bug(bug_uuid: UUID, update: UpdatedBug, bug_service: BugService
 
 
 @router.delete("/{bug_uuid}")
-async def delete_bug(bug_uuid: UUID,
+async def delete_bug(bug_uuid: UUID, bug_service: BugServiceDep,
                      current_user: Annotated[CurrentUser, Security(get_current_user, scopes=["bugs:write"])]):
-    return {"message": f"Delete bug {bug_uuid} successful"}
+    bug_service.delete(bug_uuid)
+
+
+@router.get("/metadata")
+async def get_metadata(bug_service: BugServiceDep, current_user: Annotated[
+    CurrentUser, Security(get_current_user, scopes=["bugs:read"])]) -> Metadata:
+    return bug_service.get_metadata()

@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlalchemy.exc import NoResultFound
 from sqlmodel import Session, select
 
-from constants import FilterParams, UserNotFoundException
+from constants import FilterParams, UserNotFoundException, Severity, Priority, Status
 from db import get_session
 from models import Bug
 from .user import UserServiceDep
@@ -15,6 +15,11 @@ class BugService:
     def __init__(self, user_service: UserServiceDep, session: Session = Depends(get_session), ):
         self.session = session
         self.user_service = user_service
+
+    @staticmethod
+    def get_metadata():
+        return {"severity": [*Severity], "priority":[*Priority], "status": [*Status]}
+
 
     def create_new_bug(self, title: str, reporter_uuid: UUID, assignee_uuid: UUID = None, optional_props: dict = None):
         if optional_props is None:
@@ -67,6 +72,22 @@ class BugService:
         query = select(Bug)
         if filters is not None:
             for field, value in filters.model_dump(exclude_defaults=True).items():
+                if field == "assigned_to":
+                    try:
+                        assignee = self.user_service.find_by_uuid(value)
+                        if assignee:
+                            value = assignee.id
+                    except NoResultFound:
+                       pass
+
+                if field == "reported_by":
+                    try:
+                        reporter = self.user_service.find_by_uuid(value)
+                        if reporter:
+                            value = reporter.id
+                    except NoResultFound:
+                        pass
+
                 query = query.where(getattr(Bug, field) == value)
 
         return self.session.exec(query).all()
@@ -77,6 +98,7 @@ class BugService:
             self.session.delete(bug_to_delete)
             self.session.commit()
         except Exception as e:
+            print(e)
             pass
 
 
