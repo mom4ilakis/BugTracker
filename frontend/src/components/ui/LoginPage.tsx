@@ -32,7 +32,7 @@ export const LoginPage = () => {
         } catch (e: any) {
             toaster.error({
                 title: "Login failed",
-                description: e.response.data.detail,
+                description: e.response?.data?.detail,
             });
         }
 

@@ -4,6 +4,7 @@ import {PasswordInput} from "@/components/ui/password-input.tsx";
 import {useState} from "react";
 import {useNavigate} from "react-router";
 import {ColorModeButton} from "@/components/ui/color-mode.tsx";
+import { toaster } from "./toaster";
 
 export const RegisterPage = () => {
     const navigate = useNavigate()
@@ -16,8 +17,17 @@ export const RegisterPage = () => {
         if (password === "" || password !== repeatPassword || email === "" || username === "") {
             return;
         }
-        await register({email, password, username});
-        navigate('/login');
+        try {
+            await register({email, password, username});
+            navigate('/login');
+        } catch (e: any) {
+            toaster.error({
+                title: "Registration unsuccessful",
+                description: e.response?.data?.detail,
+            });
+        }
+
+
     };
 
     return (
