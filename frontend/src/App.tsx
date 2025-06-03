@@ -101,7 +101,7 @@ function App() {
                                 </Flex>
                                 <Grid templateColumns={colRepeat} gap={4} pt={4}>
                                     {status.map(({displayName, name}) =>
-                                        <GridItem>
+                                        <GridItem key={name}>
                                             <Stack>
                                                 <Heading>{displayName}</Heading>
                                                 {bugs[name]?.map((bug) =>

@@ -122,7 +122,8 @@ function DetailedBug(bug: BugCardProps) {
                         <Dialog.Header>
                             <Dialog.Title>
                                 <Tag.Root>
-                                    <Tag.Label>{bug.uuid}</Tag.Label>
+                                    <Tag.Label userSelect="text">{bug.uuid}</Tag.Label>
+
                                 </Tag.Root>
                                 <Field.Root>
                                     <Field.Label>Title</Field.Label>
@@ -193,7 +194,7 @@ export function BugCard({title, description, assignee, ...rest}: BugCardProps) {
                         </Avatar.Root>
                     </Flex>
                 </Card.Title>
-                <Card.Description overflow="hidden" maxH="100px">
+                <Card.Description as="div" overflow="hidden" maxH="100px">
                     <Box>
                         <Flex justify="space-between" align="center" gap="2" direction="row" wrap="wrap" mt="2">
                             <Status.Root colorPalette={pickPriorityPalette(rest.priority)} size="sm">
