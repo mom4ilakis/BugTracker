@@ -34,5 +34,6 @@ def get_session():
 
 
 if __name__ == '__main__':
+    print("Syncing models and db")
     setup_engine()
     create_tables()
