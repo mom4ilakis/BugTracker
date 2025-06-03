@@ -4,7 +4,6 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from constants import origins
 from routers import bugs_router, login_router, users_router
 
 from db import setup_engine
@@ -14,7 +13,7 @@ setup_engine()
 app = FastAPI(root_path="/api/v1", description="Bug Tracker API server")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origin_regex=r"http://localhost:\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
