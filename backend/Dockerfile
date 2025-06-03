@@ -8,7 +8,8 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY ./src .
-
+COPY ./entrypoint.sh .
 ENV PYTHONPATH=/app
+RUN chmod +x ./entrypoint.sh
 
-CMD ["fastapi", "run", "main.py"]
+CMD ["./entrypoint.sh"]
