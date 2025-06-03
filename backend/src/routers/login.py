@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from constants import UserExistsException, CredentialsException
+from constants import UserExistsException, CredentialsException, UserNotFoundException, HttpErrorModel
 from services import UserServiceDep, AuthServiceDep
 from dependencies import PasswordRequestFormDep
 from dto import RegisterInfo, User, Token
@@ -13,14 +13,16 @@ async def login(form_data: PasswordRequestFormDep, authentication_service: AuthS
     try:
         access, refresh = authentication_service.authenticate_user(form_data.username, form_data.password)
         return Token(access_token=access, refresh_token=refresh, token_type="bearer")
-    except CredentialsException:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"})
 
 
-@router.post("/register")
+@router.post("/register", responses={
+    400: {"model": HttpErrorModel}
+})
 async def register(register_data: RegisterInfo, user_service: UserServiceDep) -> User:
     try:
         user = user_service.create_new_user(register_data.username, register_data.password, register_data.email)

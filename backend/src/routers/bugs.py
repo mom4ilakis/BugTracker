@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi.params import Security
 
-from constants import UserNotFoundException
+from constants import UserNotFoundException, HttpErrorModel
 from constants.filters import FilterParams
 from dependencies import get_current_user
 from services import BugServiceDep
@@ -20,7 +20,9 @@ async def get_bugs(bug_service: BugServiceDep, filter_query: Annotated[FilterPar
     return bug_service.find_all(filter_query)
 
 
-@router.post("/")
+@router.post("/", responses={
+    404: {"model": HttpErrorModel}
+})
 async def create_bug(new_bug: NewBug, bug_service: BugServiceDep,
                      current_user: Annotated[CurrentUser, Security(get_current_user, scopes=["bugs:write"])]) -> Bug:
     title = new_bug.title
@@ -34,7 +36,9 @@ async def create_bug(new_bug: NewBug, bug_service: BugServiceDep,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignee not found!")
 
 
-@router.patch("/{bug_uuid}")
+@router.patch("/{bug_uuid}", responses={
+    404: {"model": HttpErrorModel},
+})
 async def update_bug(bug_uuid: UUID, update: UpdatedBug, bug_service: BugServiceDep,
                      current_user: Annotated[CurrentUser, Security(get_current_user, scopes=["bugs:write"])]) -> Bug:
     try:
@@ -43,7 +47,7 @@ async def update_bug(bug_uuid: UUID, update: UpdatedBug, bug_service: BugService
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignee not found!")
 
 
-@router.delete("/{bug_uuid}")
+@router.delete("/{bug_uuid}", status_code=status.HTTP_204_NO_CONTENT,)
 async def delete_bug(bug_uuid: UUID, bug_service: BugServiceDep,
                      current_user: Annotated[CurrentUser, Security(get_current_user, scopes=["bugs:write"])]):
     bug_service.delete(bug_uuid)
