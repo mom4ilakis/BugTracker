@@ -104,15 +104,17 @@ python src/db.py
 ```shell
 fastapi dev src/main.py
 ```
-> [!tip] If you get cannot find module errors
-> Set/Add PYTHONPATH=<absolute-path-to-repo>/backend/src
+> [!TIP] 
+> If you get `cannot find module` errors  
+> Add `<absolute-path-to-repo>/`backend/src to `PYTHONPATH`
 
 
->[!info] To run tests and see coverage report
+> [!NOTE] 
+> To run tests and see a coverage report
 > ```shell
 > coverage run -m pytest
->coverage report -m
->```
+> coverage report -m
+> ```
 
 # Frontend dev setup
 
@@ -138,9 +140,11 @@ If there are concerns that it will be unavailable, an image repository could be 
 ### Run with docker compose
 Remember to either set any passwords directly in the `docker-compose.yml` or set them in the environment or via .env file with `--env-file`
 
+In the root of the project run:
 ```shell
 docker compose up -d
 ```
+The default ports are `8000` for the server and `5173` for the UI
 
 ### To run either frontend or backend Dockerfile
 1. Build the image after navigating to the correct folder(`frontend` or `backend`)
