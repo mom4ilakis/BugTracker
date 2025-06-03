@@ -44,9 +44,9 @@ const pickSeverityPalette = (severity: string) => {
         case "CRITICAL":
             return "red";
         case "HIGH":
-            return "yellow";
-        case "MEDIUM":
             return "orange";
+        case "MEDIUM":
+            return "yellow";
         case "LOW":
             return "green";
         default:
