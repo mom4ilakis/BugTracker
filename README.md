@@ -107,6 +107,13 @@ fastapi dev src/main.py
 > [!tip] If you get cannot find module errors
 > Set/Add PYTHONPATH=<absolute-path-to-repo>/backend/src
 
+
+>[!info] To run tests and see coverage report
+> ```shell
+> coverage run -m pytest
+>coverage report -m
+>```
+
 # Frontend dev setup
 
 ---
