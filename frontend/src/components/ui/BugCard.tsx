@@ -20,6 +20,7 @@ import StatusSelect from "./StatusSelect";
 import React, {useState} from "react";
 import api from "@/api.ts";
 import type {Bug} from "@/types.ts";
+import {toaster} from "@/components/ui/toaster.tsx";
 
 type BugCardProps = Bug
 
@@ -79,7 +80,11 @@ function DetailedBug(bug: BugCardProps) {
         api.patch(`/bugs/${bug.uuid}`, updatedBug).then(() => {
             window.location.reload();
         }).catch(error => {
-            console.log(error)
+            toaster.error({
+                title: "Update failed",
+                description: error.response.data.detail,
+            });
+            console.log(error);
         }).finally(() => {
                 setUpdatedBug({});
                 setLoading(false);
@@ -92,7 +97,10 @@ function DetailedBug(bug: BugCardProps) {
         api.delete(`/bugs/${bug.uuid}`).then(() => {
             window.location.reload();
         }).catch(error => {
-            console.log(error)
+            toaster.error({
+                title: "Could not delete bug",
+                description: error.response.data.detail,
+            });
         }).finally(
             () => setLoading(false)
         );

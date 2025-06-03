@@ -8,6 +8,7 @@ import AssigneeSelect from "@/components/ui/AssigneeSelect.tsx";
 import SeveritySelect from "@/components/ui/SeveritySelect.tsx";
 import StatusSelect from "@/components/ui/StatusSelect.tsx";
 import type {Bug} from "@/types.ts";
+import {toaster} from "@/components/ui/toaster.tsx";
 
 function CreateBug() {
     const [newBug, setNewBug] = useState<Partial<Bug>>({});
@@ -25,6 +26,10 @@ function CreateBug() {
         api.post("/bugs", newBug).then(() => {
             location.reload();
         }).catch(error => {
+            toaster.error({
+                title: "Create bug failed",
+                description: error.response.data.detail,
+            })
             console.log(error)
         }).finally(() =>
             setLoading(false)

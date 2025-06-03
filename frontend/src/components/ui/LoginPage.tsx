@@ -12,6 +12,7 @@ import {PasswordInput} from "@/components/ui/password-input.tsx";
 import {useNavigate} from "react-router";
 import {useState} from "react";
 import {ColorModeButton} from "@/components/ui/color-mode.tsx";
+import {toaster} from "@/components/ui/toaster.tsx";
 
 export const LoginPage = () => {
     const navigate = useNavigate()
@@ -25,8 +26,16 @@ export const LoginPage = () => {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
-        await login(formData);
-        navigate('/');
+        try {
+            await login(formData);
+            navigate('/');
+        } catch (e: any) {
+            toaster.error({
+                title: "Login failed",
+                description: e.response.data.detail,
+            });
+        }
+
     };
 
     return (

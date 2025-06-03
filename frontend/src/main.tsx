@@ -8,10 +8,12 @@ import {createBrowserRouter} from "react-router";
 import {LoginPage} from "@/components/ui/LoginPage.tsx";
 import {RegisterPage} from "@/components/ui/RegisterPage.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute.tsx";
+import {Toaster} from "@/components/ui/toaster.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <Provider>
+            <Toaster/>
                 <RouterProvider router={createBrowserRouter([
                     {
                         element: <ProtectedRoute/>,
